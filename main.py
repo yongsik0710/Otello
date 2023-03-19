@@ -22,10 +22,10 @@ pygame.display.set_caption('오델로')
 # place_sound = pygame.mixer.Sound("place.wav")
 
 block = [[0 for i in range(8)] for j in range(8)]
+sub_block = [[0 for i in range(8)] for j in range(8)]
 
 direction = [[1, 1], [1, 0], [1, -1], [0, -1], [-1, -1], [-1, 0], [-1, 1], [0, 1]]
 
-turn = 1
 
 # 이미지 로드
 current_path = os.path.dirname(__file__)
@@ -48,8 +48,8 @@ def game_start():
     block[3][4] = 1
     block[4][3] = 1
 
-    block[2][4] = 2
-    block[1][4] = 2
+    global turn
+    turn = 1
 
 
 def place_x(select_x):
@@ -104,7 +104,7 @@ def different_block(select_x, select_y):  # 선택한 곳이 다른 블럭인가
         return False
 
 
-def first_direction_test(select_x, select_y):
+def first_direction_test(select_x, select_y):  # 바로 다음 칸이 다른 색인가?
     if select_in_board(select_x, select_y):
         if different_block(select_x, select_y):
             return True
@@ -114,10 +114,11 @@ def first_direction_test(select_x, select_y):
         return False
 
 
-def one_direction_test(select_x, select_y, dx, dy):
+def one_direction_test(select_x, select_y, dx, dy, n):  #한 방향 검사
     select_x += dx
     select_y += dy
     if first_direction_test(select_x, select_y):
+        sub_block[select_y][select_x] = n
         while True:
             select_x += dx
             select_y += dy
@@ -125,6 +126,8 @@ def one_direction_test(select_x, select_y, dx, dy):
                 if not empty_block(select_x, select_y):
                     if same_block(select_x, select_y):
                         return True
+                    else:
+                        sub_block[select_y][select_x] = n
                 else:
                     return False
             else:
@@ -133,13 +136,46 @@ def one_direction_test(select_x, select_y, dx, dy):
         return False
 
 
-def all_direction_test(select_x, select_y):
+def all_direction_test(select_x, select_y):  #8방향 검사
     for n in range(8):
         dx = direction[n][1]
         dy = direction[n][0]
-        if one_direction_test(select_x, select_y, dx, dy):
+        if one_direction_test(select_x, select_y, dx, dy, n+1):
             return True
     return False
+
+
+def place_stones(select_x, select_y):
+    for n in range(8):
+        dx = direction[n][1]
+        dy = direction[n][0]
+        if one_direction_test(select_x, select_y, dx, dy, n+1):
+            for i in range(8):
+                for j in range(8):
+                    if sub_block[i][j] == n+1 or sub_block[i][j] == -1:
+                        sub_block[i][j] = -1
+                    else:
+                        sub_block[i][j] = 0
+    sub_block[select_y][select_x] = -1
+    for i in range(8):
+        for j in range(8):
+            if sub_block[i][j] == -1:
+                block[i][j] = turn
+            sub_block[i][j] = 0
+
+
+def reset_sub_block():
+    for i in range(8):
+        for j in range(8):
+            sub_block[i][j] = 0
+
+
+def turn_change():
+    global turn
+    if turn == 1:
+        turn = 2
+    else:
+        turn = 1
 
 
 def display_update():
@@ -175,6 +211,9 @@ while running:
             if mouse_in_board(select_x, select_y):
                 if empty_block(select_x, select_y):
                     if all_direction_test(select_x, select_y):
+                        reset_sub_block()
+                        place_stones(select_x, select_y)
+                        turn_change()
                         print("성공!!")
                     else:
                         print("그곳엔 둘 수 없습니다.")
