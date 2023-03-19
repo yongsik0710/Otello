@@ -1,4 +1,5 @@
-import pygame, os
+import os
+import pygame
 
 pygame.init()
 
@@ -24,8 +25,10 @@ pygame.display.set_caption('오델로')
 block = [[0 for i in range(8)] for j in range(8)]
 sub_block = [[0 for i in range(8)] for j in range(8)]
 
-direction = [[1, 1], [1, 0], [1, -1], [0, -1], [-1, -1], [-1, 0], [-1, 1], [0, 1]]
+global turn
+turn = 1
 
+direction = [[1, 1], [1, 0], [1, -1], [0, -1], [-1, -1], [-1, 0], [-1, 1], [0, 1]]
 
 # 이미지 로드
 current_path = os.path.dirname(__file__)
@@ -48,21 +51,18 @@ def game_start():
     block[3][4] = 1
     block[4][3] = 1
 
-    global turn
-    turn = 1
-
 
 def place_x(select_x):
-    return int((select_x * side_length) + (gap[0]/2))
+    return int((select_x * side_length) + (gap[0] / 2))
 
 
 def place_y(select_y):
-    return int((select_y * side_length) + (gap[1]/2))
+    return int((select_y * side_length) + (gap[1] / 2))
 
 
 def mouse_in_board(select_x, select_y):  # 클릭 위치가 게임보드 안인가?
-    if mouse_x - (gap[0]/2) >= 0 and select_x < 8:
-        if mouse_y - (gap[1]/2) >= 0 and select_y < 8:
+    if mouse_x - (gap[0] / 2) >= 0 and select_x < 8:
+        if mouse_y - (gap[1] / 2) >= 0 and select_y < 8:
             return True
         else:
             return False
@@ -114,7 +114,7 @@ def first_direction_test(select_x, select_y):  # 바로 다음 칸이 다른 색
         return False
 
 
-def one_direction_test(select_x, select_y, dx, dy, n):  #한 방향 검사
+def one_direction_test(select_x, select_y, dx, dy, n):  # 한 방향 검사
     select_x += dx
     select_y += dy
     if first_direction_test(select_x, select_y):
@@ -136,11 +136,11 @@ def one_direction_test(select_x, select_y, dx, dy, n):  #한 방향 검사
         return False
 
 
-def all_direction_test(select_x, select_y):  #8방향 검사
+def all_direction_test(select_x, select_y):  # 8방향 검사
     for n in range(8):
         dx = direction[n][1]
         dy = direction[n][0]
-        if one_direction_test(select_x, select_y, dx, dy, n+1):
+        if one_direction_test(select_x, select_y, dx, dy, n + 1):
             return True
     return False
 
@@ -149,10 +149,10 @@ def place_stones(select_x, select_y):
     for n in range(8):
         dx = direction[n][1]
         dy = direction[n][0]
-        if one_direction_test(select_x, select_y, dx, dy, n+1):
+        if one_direction_test(select_x, select_y, dx, dy, n + 1):
             for i in range(8):
                 for j in range(8):
-                    if sub_block[i][j] == n+1 or sub_block[i][j] == -1:
+                    if sub_block[i][j] == n + 1 or sub_block[i][j] == -1:
                         sub_block[i][j] = -1
                     else:
                         sub_block[i][j] = 0
@@ -179,7 +179,7 @@ def turn_change():
 
 
 def display_update():
-    screen.blit(gameboard, [gap[0]/2, gap[1]/2])
+    screen.blit(gameboard, [gap[0] / 2, gap[1] / 2])
     for i in range(8):
         for r in range(8):
             if block[i][r] == 1:
@@ -198,8 +198,8 @@ while running:
     for event in pygame.event.get():
         mouse_x = pygame.mouse.get_pos()[0]
         mouse_y = pygame.mouse.get_pos()[1]
-        select_x = int((mouse_x - (gap[0]/2)) / side_length)
-        select_y = int((mouse_y - (gap[1]/2)) / side_length)
+        select_x = int((mouse_x - (gap[0] / 2)) / side_length)
+        select_y = int((mouse_y - (gap[1] / 2)) / side_length)
 
         if event.type == pygame.QUIT:
             running = False
