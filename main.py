@@ -48,6 +48,9 @@ def game_start():
     block[3][4] = 1
     block[4][3] = 1
 
+    block[2][4] = 2
+    block[1][4] = 2
+
 
 def place_x(select_x):
     return int((select_x * side_length) + (gap[0]/2))
@@ -84,8 +87,8 @@ def empty_block(select_x, select_y):  # 선택한 곳이 비워져 있는가?
         return False
 
 
-def not_same_block(select_x, select_y):  # 선택한 곳이 같지 않은 블럭인가? (검은색의 차례인 경우 비거나 흰색인 경우 참)
-    if block[select_y][select_x] != turn:
+def same_block(select_x, select_y):  # 선택한 곳이 같은 블럭인가? (검은색의 차례인 경우 검은색인 경우 참)
+    if block[select_y][select_x] == turn:
         return True
     else:
         return False
@@ -111,19 +114,6 @@ def first_direction_test(select_x, select_y):
         return False
 
 
-def second_direction_test(select_x, select_y):
-    if select_in_board(select_x, select_y):
-        if not empty_block(select_x, select_y):
-            if not not_same_block(select_x, select_y):
-                return True
-            else:
-                return False
-        else:
-            return False
-    else:
-        return False
-
-
 def one_direction_test(select_x, select_y, dx, dy):
     select_x += dx
     select_y += dy
@@ -131,8 +121,12 @@ def one_direction_test(select_x, select_y, dx, dy):
         while True:
             select_x += dx
             select_y += dy
-            if second_direction_test(select_x, select_y):
-                return True
+            if select_in_board(select_x, select_y):
+                if not empty_block(select_x, select_y):
+                    if same_block(select_x, select_y):
+                        return True
+                else:
+                    return False
             else:
                 return False
     else:
