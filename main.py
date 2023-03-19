@@ -44,7 +44,7 @@ white = pygame.image.load(os.path.join(image_path, "whitestone.png"))
 white = pygame.transform.scale(white, (side_length, side_length))
 
 
-####### 함수 #######
+# 함수
 def game_start():
     block[3][3] = 2
     block[4][4] = 2
@@ -189,7 +189,7 @@ def display_update():
     pygame.display.update()
 
 
-####################
+# 게임 시작 부분
 game_start()
 
 running = True
