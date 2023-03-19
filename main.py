@@ -25,7 +25,6 @@ pygame.display.set_caption('오델로')
 block = [[0 for i in range(8)] for j in range(8)]
 sub_block = [[0 for i in range(8)] for j in range(8)]
 
-global turn
 turn = 1
 
 direction = [[1, 1], [1, 0], [1, -1], [0, -1], [-1, -1], [-1, 0], [-1, 1], [0, 1]]
