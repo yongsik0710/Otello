@@ -2,7 +2,7 @@ import pygame, os
 
 pygame.init()
 
-display_width = 1200
+display_width = 1000
 display_height = 800
 
 if display_height > display_width:
