@@ -172,9 +172,32 @@ def reset_sub_block():
 def turn_change():
     global turn
     if turn == 1:
+        if not place_available():
+            turn = 2
+            if not place_available():
+                print("게임 끝!")
+            else:
+                turn = 1
+                print("스킵")
         turn = 2
     else:
+        if not place_available():
+            turn = 1
+            if not place_available():
+                print("게임 끝!")
+            else:
+                turn = 2
+                print("스킵")
         turn = 1
+
+
+def place_available():
+    for i in range(8):
+        for j in range(8):
+            if empty_block(i, j):
+                if all_direction_test(i, j):
+                    return True
+    return False
 
 
 def display_update():
