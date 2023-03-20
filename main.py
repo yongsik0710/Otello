@@ -186,7 +186,6 @@ def turn_change():
             turn = 1
             if not placeable():
                 game_end()
-                print("게임 끝!")
             else:
                 print("패스")
     else:
@@ -195,7 +194,6 @@ def turn_change():
             turn = 2
             if not placeable():
                 game_end()
-                print("게임 끝!")
             else:
                 print("패스")
 
@@ -217,6 +215,17 @@ def game_end():  #게임 결과 산출
         print("무승부")
     else:
         print("흰색 승!")
+
+
+def game_reset():  # 게임 초기화
+    global turn
+    turn = 1
+    for i in range(8):
+        for j in range(8):
+            block[i][j] = 0
+            sub_block[i][j] = 0
+    game_start()
+    print("게임 초기화됨")
 
 
 def display_update():
@@ -245,20 +254,24 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                game_reset()
         # 마우스 클릭 이벤트
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if mouse_in_board(select_x, select_y):
-                if empty_block(select_x, select_y):
-                    if all_direction_test(select_x, select_y):
-                        #reset_sub_block()
-                        place_stones(select_x, select_y)
-                        turn_change()
+            if event.button == 1:
+                if mouse_in_board(select_x, select_y):
+                    if empty_block(select_x, select_y):
+                        if all_direction_test(select_x, select_y):
+                            #reset_sub_block()
+                            place_stones(select_x, select_y)
+                            turn_change()
+                        else:
+                            print("그곳엔 둘 수 없습니다.")
                     else:
                         print("그곳엔 둘 수 없습니다.")
                 else:
                     print("그곳엔 둘 수 없습니다.")
-            else:
-                print("그곳엔 둘 수 없습니다.")
     display_update()
 
 pygame.quit()
