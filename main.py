@@ -200,6 +200,19 @@ def place_available():
     return False
 
 
+def game_end():
+    black = 0
+    white = 0
+    for i in range(8):
+        for j in range(8):
+            if block[i][j] == 1:
+                black += 1
+            else:
+                white += 1
+    print("검은색 :", black)
+    print("흰색 : ", white)
+
+
 def display_update():
     screen.blit(gameboard, [gap[0] / 2, gap[1] / 2])
     for i in range(8):
@@ -233,10 +246,10 @@ while running:
             if mouse_in_board(select_x, select_y):
                 if empty_block(select_x, select_y):
                     if all_direction_test(select_x, select_y):
+                        print("성공!!")
                         reset_sub_block()
                         place_stones(select_x, select_y)
                         turn_change()
-                        print("성공!!")
                     else:
                         print("그곳엔 둘 수 없습니다.")
                 else:
