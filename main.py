@@ -139,12 +139,12 @@ def all_direction_test(select_x, select_y):  # 8방향 검사
     for n in range(8):
         dx = direction[n][1]
         dy = direction[n][0]
-        if one_direction_test(select_x, select_y, dx, dy, n + 1):
+        if one_direction_test(select_x, select_y, dx, dy, 0):
             return True
     return False
 
 
-def place_stones(select_x, select_y):
+def place_stones(select_x, select_y):  #돌 설치
     for n in range(8):
         dx = direction[n][1]
         dy = direction[n][0]
@@ -169,29 +169,7 @@ def reset_sub_block():
             sub_block[i][j] = 0
 
 
-def turn_change():
-    global turn
-    if turn == 1:
-        if not place_available():
-            turn = 2
-            if not place_available():
-                print("게임 끝!")
-            else:
-                turn = 1
-                print("스킵")
-        turn = 2
-    else:
-        if not place_available():
-            turn = 1
-            if not place_available():
-                print("게임 끝!")
-            else:
-                turn = 2
-                print("스킵")
-        turn = 1
-
-
-def place_available():
+def placeable():  # 이 차례에 둘 수 있는 곳이 있는가?
     for i in range(8):
         for j in range(8):
             if empty_block(i, j):
@@ -200,17 +178,45 @@ def place_available():
     return False
 
 
-def game_end():
+def turn_change():
+    global turn
+    if turn == 1:
+        turn = 2
+        if not placeable():
+            turn = 1
+            if not placeable():
+                game_end()
+                print("게임 끝!")
+            else:
+                print("패스")
+    else:
+        turn = 1
+        if not placeable():
+            turn = 2
+            if not placeable():
+                game_end()
+                print("게임 끝!")
+            else:
+                print("패스")
+
+
+def game_end():  #게임 결과 산출
     black = 0
     white = 0
     for i in range(8):
         for j in range(8):
             if block[i][j] == 1:
                 black += 1
-            else:
+            elif block[i][j] == 2:
                 white += 1
     print("검은색 :", black)
     print("흰색 : ", white)
+    if black > white:
+        print("검은색 승!")
+    elif black == white:
+        print("무승부")
+    else:
+        print("흰색 승!")
 
 
 def display_update():
@@ -241,13 +247,10 @@ while running:
 
         # 마우스 클릭 이벤트
         if event.type == pygame.MOUSEBUTTONDOWN:
-            print(mouse_x, mouse_y)
-            print(select_x, select_y)
             if mouse_in_board(select_x, select_y):
                 if empty_block(select_x, select_y):
                     if all_direction_test(select_x, select_y):
-                        print("성공!!")
-                        reset_sub_block()
+                        #reset_sub_block()
                         place_stones(select_x, select_y)
                         turn_change()
                     else:
