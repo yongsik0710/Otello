@@ -144,7 +144,7 @@ def all_direction_test(select_x, select_y):  # 8방향 검사
     return False
 
 
-def place_stones(select_x, select_y):  #돌 설치
+def place_stones(select_x, select_y):  # 돌 설치
     for n in range(8):
         dx = direction[n][1]
         dy = direction[n][0]
@@ -160,12 +160,6 @@ def place_stones(select_x, select_y):  #돌 설치
         for j in range(8):
             if sub_block[i][j] == -1:
                 block[i][j] = turn
-            sub_block[i][j] = 0
-
-
-def reset_sub_block():
-    for i in range(8):
-        for j in range(8):
             sub_block[i][j] = 0
 
 
@@ -198,7 +192,7 @@ def turn_change():
                 print("패스")
 
 
-def game_end():  #게임 결과 산출
+def game_end():  # 게임 결과 산출
     black = 0
     white = 0
     for i in range(8):
@@ -263,7 +257,6 @@ while running:
                 if mouse_in_board(select_x, select_y):
                     if empty_block(select_x, select_y):
                         if all_direction_test(select_x, select_y):
-                            #reset_sub_block()
                             place_stones(select_x, select_y)
                             turn_change()
                         else:
