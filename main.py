@@ -2,9 +2,11 @@ import os
 import pygame
 import configparser
 
+
 config = configparser.ConfigParser()
 config.read('config.ini')
 
+'''
 config['display'] = {
     'width': '1000',
     'height': '800',
@@ -17,6 +19,7 @@ config['interface'] = {
 config['gameplay'] = {
     'time limit': '15'
 }
+'''
 
 with open('config.ini', 'w') as configfile:
     config.write(configfile)
@@ -40,8 +43,6 @@ side_length = display_min / 8
 screen = pygame.display.set_mode([display_width, display_height])
 pygame.display.set_caption('오델로')
 
-# place_sound = pygame.mixer.Sound("place.wav")
-
 block = [[0 for i in range(8)] for j in range(8)]
 sub_block = [[0 for i in range(8)] for j in range(8)]
 
@@ -61,6 +62,53 @@ black = pygame.transform.scale(black, (side_length, side_length))
 
 white = pygame.image.load(os.path.join(image_path, "whitestone.png"))
 white = pygame.transform.scale(white, (side_length, side_length))
+
+font = pygame.font.SysFont('Arial', 40)
+objects = []
+
+
+class Button():
+    def __init__(self, x, y, width, height, buttonText='Button', onclickFunction=None, onePress=False):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.onclickFunction = onclickFunction
+        self.onePress = onePress
+        self.alreadyPressed = False
+
+        self.fillColors = {
+            'normal': '#ffffff',
+            'hover': '#666666',
+            'pressed': '#333333',
+        }
+        self.buttonSurface = pygame.Surface((self.width, self.height))
+        self.buttonRect = pygame.Rect(self.x, self.y, self.width, self.height)
+
+        self.buttonSurf = font.render(buttonText, True, (20, 20, 20))
+
+        objects.append(self)
+
+    def process(self):
+        mousePos = pygame.mouse.get_pos()
+        self.buttonSurface.fill(self.fillColors['normal'])
+        if self.buttonRect.collidepoint(mousePos):
+            self.buttonSurface.fill(self.fillColors['hover'])
+            if pygame.mouse.get_pressed(num_buttons=3)[0]:
+                self.buttonSurface.fill(self.fillColors['pressed'])
+                if self.onePress:
+                    self.onclickFunction()
+                elif not self.alreadyPressed:
+                    self.onclickFunction()
+                    self.alreadyPressed = True
+            else:
+                self.alreadyPressed = False
+
+        self.buttonSurface.blit(self.buttonSurf, [
+            self.buttonRect.width / 2 - self.buttonSurf.get_rect().width / 2,
+            self.buttonRect.height / 2 - self.buttonSurf.get_rect().height / 2
+        ])
+        screen.blit(self.buttonSurface, self.buttonRect)
 
 
 # 함수
@@ -250,11 +298,22 @@ def display_update():
                 screen.blit(black, [place_x(r), place_y(i)])
             elif block[i][r] == 2:
                 screen.blit(white, [place_x(r), place_y(i)])
+    for object in objects:
+        object.process()
     pygame.display.update()
 
 
+def button_click():
+    print("Button Pressed")
+
+
 # 게임 시작 부분
+# Button(30, 30, 400, 100, 'Button One (onePress)', button_click)
+# Button(30, 140, 400, 100, 'Button Two (multiPress)', button_click, True)
+Button(30, 30, 400, 100, 'Reset', game_reset)
+
 game_start()
+clock = pygame.time.Clock()
 
 running = True
 while running:
@@ -285,6 +344,7 @@ while running:
                         print("그곳엔 둘 수 없습니다.")
                 else:
                     print("그곳엔 둘 수 없습니다.")
+    clock.tick(60)
     display_update()
 
 pygame.quit()
