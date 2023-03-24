@@ -1,10 +1,30 @@
 import os
 import pygame
+import configparser
+
+config = configparser.ConfigParser()
+config.read('config.ini')
+
+config['display'] = {
+    'width': '1000',
+    'height': '800',
+}
+config['interface'] = {
+    'preview': 'False',
+    'board skin': 'default',
+    'stone skin': 'default',
+}
+config['gameplay'] = {
+    'time limit': '15'
+}
+
+with open('config.ini', 'w') as configfile:
+    config.write(configfile)
 
 pygame.init()
 
-display_width = 1000
-display_height = 800
+display_width = config.getint('display', 'width')
+display_height = config.getint('display', 'height')
 
 if display_height > display_width:
     display_max = display_height
