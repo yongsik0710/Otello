@@ -307,6 +307,7 @@ def button_click():
     print("Button Pressed")
 
 
+
 # 게임 시작 부분
 # Button(30, 30, 400, 100, 'Button One (onePress)', button_click)
 # Button(30, 140, 400, 100, 'Button Two (multiPress)', button_click, True)
