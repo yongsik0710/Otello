@@ -1,7 +1,7 @@
 import pygame
 import os
 import configparser
-from othello_algm import *
+import othello_algorithm as othello
 
 pygame.init()
 # 설정 불러오기
@@ -26,18 +26,6 @@ side_length = display_min / 8
 screen = pygame.display.set_mode([display_width, display_height])
 pygame.display.set_caption('오델로')
 
-#이미지 불러오기
-current_path = os.path.dirname(__file__)
-image_path = os.path.join(current_path, "images")
-
-gameboard = pygame.image.load(os.path.join(image_path, "gameboard.png"))
-gameboard = pygame.transform.scale(gameboard, (display_min, display_min))
-
-black = pygame.image.load(os.path.join(image_path, "blackstone.png"))
-black = pygame.transform.scale(black, (side_length, side_length))
-
-white = pygame.image.load(os.path.join(image_path, "whitestone.png"))
-white = pygame.transform.scale(white, (side_length, side_length))
 
 font = pygame.font.SysFont('None', int(0.06*display_min))
 
@@ -63,6 +51,9 @@ class Button():
 
         objects.append(self)
 
+    def __del__(self):
+        print("삭제됨")
+
     def process(self):
         mousePos = pygame.mouse.get_pos()
         self.buttonSurface.fill(self.fillColors['normal'])
@@ -84,14 +75,48 @@ class Button():
         ])
         screen.blit(self.buttonSurface, self.buttonRect)
 
+
 def game_start():
-    game_start()
-    phase = othello_algm.phase
+    global phase
+    global objects
+
+    othello.game_start()
+    phase = othello.phase
+
+    objects = []
 
 
 def exit():
     global running
     running = 0
+
+
+def menu():
+    if objects == []:
+        resume_button = Button(button_x, int(0.2 * display_height), button_width, button_height, 'Resume', resume)
+        undo_button = Button(button_x, int(0.3*display_height), button_width, button_height, 'Undo', undo)
+        reset_button = Button(button_x, int(0.4 * display_height), button_width, button_height, 'Reset', reset)
+        # options_button = Button(button_x, int(0.5 * display_height), button_width, button_height, 'Options', options)
+        exit_button = Button(button_x, int(0.6 * display_height), button_width, button_height, 'Exit', exit)
+
+
+def resume():
+    global objects
+    global phase
+
+    objects = []
+    phase = 1
+
+
+def reset():
+    resume()
+    othello.game_reset()
+
+
+def undo():
+    resume()
+    othello.undo()
+
 
 #버튼 설정
 objects = []
@@ -114,36 +139,45 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-    if phase == 0:
-        for object in objects:
-            object.process()
-        pygame.display.update()
-        print(phase)
+        if phase == 0:
+            for object in objects:
+                object.process()
+            pygame.display.update()
 
-    elif phase == 1:
-        for event in pygame.event.get():
+        elif phase == 1:
             mouse_x = pygame.mouse.get_pos()[0]
             mouse_y = pygame.mouse.get_pos()[1]
             select_x = int((mouse_x - (gap[0] / 2)) / side_length)
             select_y = int((mouse_y - (gap[1] / 2)) / side_length)
+            othello.get_mouse(mouse_x, mouse_y)
 
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    game_reset()
+                if event.key == pygame.K_ESCAPE:  # 메뉴 오픈
+                    phase = 2
+                    print(phase)
             # 마우스 클릭 이벤트
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
-                    if mouse_in_board(select_x, select_y):
-                        if empty_block(select_x, select_y):
-                            if all_direction_test(select_x, select_y):
-                                place_stones(select_x, select_y)
-                                turn_change()
+                    if othello.mouse_in_board(select_x, select_y):
+                        if othello.empty_block(select_x, select_y):
+                            if othello.all_direction_test(select_x, select_y):
+                                othello.place_stones(select_x, select_y)
+                                othello.turn_change()
                             else:
                                 print("그곳엔 둘 수 없습니다.")
                         else:
                             print("그곳엔 둘 수 없습니다.")
                     else:
                         print("그곳엔 둘 수 없습니다.")
-        display_update()
+            othello.display_update(screen)
+        elif phase == 2:
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:  # 메뉴 닫기
+                    resume()
+            menu()
+            for object in objects:
+                object.process()
+            pygame.display.update()
+
 
 pygame.quit()

@@ -1,8 +1,11 @@
 import pygame
+import configparser
+import os
+import copy
 
-pygame.init()
+config = configparser.ConfigParser()
+config.read('config.ini')
 
-'''
 display_width = config.getint('display', 'width')
 display_height = config.getint('display', 'height')
 
@@ -17,10 +20,6 @@ else:
 
 side_length = display_min / 8
 
-screen = pygame.display.set_mode([display_width, display_height])
-pygame.display.set_caption('오델로')
-
-
 # 이미지 로드
 current_path = os.path.dirname(__file__)
 image_path = os.path.join(current_path, "images")
@@ -34,6 +33,16 @@ black = pygame.transform.scale(black, (side_length, side_length))
 white = pygame.image.load(os.path.join(image_path, "whitestone.png"))
 white = pygame.transform.scale(white, (side_length, side_length))
 
+
+block = [[0 for i in range(8)] for j in range(8)]
+sub_block = [[0 for i in range(8)] for j in range(8)]
+direction = [[1, 1], [1, 0], [1, -1], [0, -1], [-1, -1], [-1, 0], [-1, 1], [0, 1]]
+turn = 1
+turn_num = 0
+history = []
+
+
+'''
 font = pygame.font.SysFont('Arial', 40)
 objects = []
 
@@ -84,16 +93,7 @@ class Button():
 
 # 함수
 def game_start():
-    global block
-    global sub_block
-    global direction
-    global turn
     global phase
-
-    block = [[0 for i in range(8)] for j in range(8)]
-    sub_block = [[0 for i in range(8)] for j in range(8)]
-    direction = [[1, 1], [1, 0], [1, -1], [0, -1], [-1, -1], [-1, 0], [-1, 1], [0, 1]]
-    turn = 1
 
     block[3][3] = 2
     block[4][4] = 2
@@ -102,6 +102,8 @@ def game_start():
 
     phase = 1
 
+    history.append(copy.deepcopy(block))
+
 
 def place_x(select_x):
     return int((select_x * side_length) + (gap[0] / 2))
@@ -109,6 +111,14 @@ def place_x(select_x):
 
 def place_y(select_y):
     return int((select_y * side_length) + (gap[1] / 2))
+
+
+def get_mouse(m_x, m_y):
+    global mouse_x
+    global mouse_y
+
+    mouse_x = m_x
+    mouse_y = m_y
 
 
 def mouse_in_board(select_x, select_y):  # 클릭 위치가 게임보드 안인가?
@@ -226,6 +236,8 @@ def placeable():  # 이 차례에 둘 수 있는 곳이 있는가?
 
 def turn_change():
     global turn
+    global turn_num
+
     if turn == 1:
         turn = 2
         if not placeable():
@@ -242,6 +254,25 @@ def turn_change():
                 game_end()
             else:
                 print("패스")
+
+    turn_num += 1
+    history.append(copy.deepcopy(block))
+
+
+def undo():
+    global turn_num
+    global block
+    global turn
+
+    if turn_num >= 1:
+        block = history[turn_num-1]
+        turn_num -= 1
+        if turn == 1:
+            turn = 2
+        else:
+            turn = 1
+    else:
+        print("더 이상 되돌릴 수 없습니다.")
 
 
 def game_end():  # 게임 결과 산출
@@ -274,7 +305,7 @@ def game_reset():  # 게임 초기화
     print("게임 초기화됨")
 
 
-def display_update():
+def display_update(screen):
     screen.blit(gameboard, [gap[0] / 2, gap[1] / 2])
     for i in range(8):
         for r in range(8):
@@ -282,54 +313,14 @@ def display_update():
                 screen.blit(black, [place_x(r), place_y(i)])
             elif block[i][r] == 2:
                 screen.blit(white, [place_x(r), place_y(i)])
+    '''
     for object in objects:
         object.process()
+    '''
     pygame.display.update()
-
-
-def button_click():
-    print("Button Pressed")
-
 
 
 # 게임 시작 부분
 # Button(30, 30, 400, 100, 'Button One (onePress)', button_click)
 # Button(30, 140, 400, 100, 'Button Two (multiPress)', button_click, True)
 #Button(30, 30, 400, 100, 'Reset', game_reset)
-
-
-'''
-running = True
-while running:
-
-    for event in pygame.event.get():
-        mouse_x = pygame.mouse.get_pos()[0]
-        mouse_y = pygame.mouse.get_pos()[1]
-        select_x = int((mouse_x - (gap[0] / 2)) / side_length)
-        select_y = int((mouse_y - (gap[1] / 2)) / side_length)
-
-        if event.type == pygame.QUIT:
-            running = False
-
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:
-                game_reset()
-        # 마우스 클릭 이벤트
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 1:
-                if mouse_in_board(select_x, select_y):
-                    if empty_block(select_x, select_y):
-                        if all_direction_test(select_x, select_y):
-                            place_stones(select_x, select_y)
-                            turn_change()
-                        else:
-                            print("그곳엔 둘 수 없습니다.")
-                    else:
-                        print("그곳엔 둘 수 없습니다.")
-                else:
-                    print("그곳엔 둘 수 없습니다.")
-    clock.tick(60)
-    display_update()
-
-pygame.quit()
-'''
