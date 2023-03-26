@@ -1,31 +1,14 @@
-import os
 import pygame
+import os
 import configparser
+from othello_algm import *
 
-
+pygame.init()
+# 설정 불러오기
 config = configparser.ConfigParser()
 config.read('config.ini')
 
-'''
-config['display'] = {
-    'width': '1000',
-    'height': '800',
-}
-config['interface'] = {
-    'preview': 'False',
-    'board skin': 'default',
-    'stone skin': 'default',
-}
-config['gameplay'] = {
-    'time limit': '15'
-}
-'''
-
-with open('config.ini', 'w') as configfile:
-    config.write(configfile)
-
-pygame.init()
-
+#화면 설정
 display_width = config.getint('display', 'width')
 display_height = config.getint('display', 'height')
 
@@ -43,14 +26,7 @@ side_length = display_min / 8
 screen = pygame.display.set_mode([display_width, display_height])
 pygame.display.set_caption('오델로')
 
-block = [[0 for i in range(8)] for j in range(8)]
-sub_block = [[0 for i in range(8)] for j in range(8)]
-
-turn = 1
-
-direction = [[1, 1], [1, 0], [1, -1], [0, -1], [-1, -1], [-1, 0], [-1, 1], [0, 1]]
-
-# 이미지 로드
+#이미지 불러오기
 current_path = os.path.dirname(__file__)
 image_path = os.path.join(current_path, "images")
 
@@ -63,9 +39,7 @@ black = pygame.transform.scale(black, (side_length, side_length))
 white = pygame.image.load(os.path.join(image_path, "whitestone.png"))
 white = pygame.transform.scale(white, (side_length, side_length))
 
-font = pygame.font.SysFont('Arial', 40)
-objects = []
-
+font = pygame.font.SysFont('None', int(0.06*display_min))
 
 class Button():
     def __init__(self, x, y, width, height, buttonText='Button', onclickFunction=None, onePress=False):
@@ -110,242 +84,66 @@ class Button():
         ])
         screen.blit(self.buttonSurface, self.buttonRect)
 
-
-# 함수
 def game_start():
-    block[3][3] = 2
-    block[4][4] = 2
-    block[3][4] = 1
-    block[4][3] = 1
-
-
-def place_x(select_x):
-    return int((select_x * side_length) + (gap[0] / 2))
-
-
-def place_y(select_y):
-    return int((select_y * side_length) + (gap[1] / 2))
-
-
-def mouse_in_board(select_x, select_y):  # 클릭 위치가 게임보드 안인가?
-    if mouse_x - (gap[0] / 2) >= 0 and select_x < 8:
-        if mouse_y - (gap[1] / 2) >= 0 and select_y < 8:
-            return True
-        else:
-            return False
-    else:
-        return False
-
-
-def select_in_board(select_x, select_y):  # 선택 위치가 게임보드 안인가?
-    if 0 <= select_x <= 7:
-        if 0 <= select_y <= 7:
-            return True
-        else:
-            return False
-    else:
-        return False
-
-
-def empty_block(select_x, select_y):  # 선택한 곳이 비워져 있는가?
-    if block[select_y][select_x] == 0:
-        return True
-    else:
-        return False
-
-
-def same_block(select_x, select_y):  # 선택한 곳이 같은 블럭인가? (검은색의 차례인 경우 검은색인 경우 참)
-    if block[select_y][select_x] == turn:
-        return True
-    else:
-        return False
-
-
-def different_block(select_x, select_y):  # 선택한 곳이 다른 블럭인가? (검은색의 차례인 경우 흰색인 경우만 참)
-    if block[select_y][select_x] != turn:
-        if not empty_block(select_x, select_y):
-            return True
-        else:
-            return False
-    else:
-        return False
-
-
-def first_direction_test(select_x, select_y):  # 바로 다음 칸이 다른 색인가?
-    if select_in_board(select_x, select_y):
-        if different_block(select_x, select_y):
-            return True
-        else:
-            return False
-    else:
-        return False
-
-
-def one_direction_test(select_x, select_y, dx, dy, n):  # 한 방향 검사
-    select_x += dx
-    select_y += dy
-    if first_direction_test(select_x, select_y):
-        sub_block[select_y][select_x] = n
-        while True:
-            select_x += dx
-            select_y += dy
-            if select_in_board(select_x, select_y):
-                if not empty_block(select_x, select_y):
-                    if same_block(select_x, select_y):
-                        return True
-                    else:
-                        sub_block[select_y][select_x] = n
-                else:
-                    return False
-            else:
-                return False
-    else:
-        return False
-
-
-def all_direction_test(select_x, select_y):  # 8방향 검사
-    for n in range(8):
-        dx = direction[n][1]
-        dy = direction[n][0]
-        if one_direction_test(select_x, select_y, dx, dy, 0):
-            return True
-    return False
-
-
-def place_stones(select_x, select_y):  # 돌 설치
-    for n in range(8):
-        dx = direction[n][1]
-        dy = direction[n][0]
-        if one_direction_test(select_x, select_y, dx, dy, n + 1):
-            for i in range(8):
-                for j in range(8):
-                    if sub_block[i][j] == n + 1 or sub_block[i][j] == -1:
-                        sub_block[i][j] = -1
-                    else:
-                        sub_block[i][j] = 0
-    sub_block[select_y][select_x] = -1
-    for i in range(8):
-        for j in range(8):
-            if sub_block[i][j] == -1:
-                block[i][j] = turn
-            sub_block[i][j] = 0
-
-
-def placeable():  # 이 차례에 둘 수 있는 곳이 있는가?
-    for i in range(8):
-        for j in range(8):
-            if empty_block(i, j):
-                if all_direction_test(i, j):
-                    return True
-    return False
-
-
-def turn_change():
-    global turn
-    if turn == 1:
-        turn = 2
-        if not placeable():
-            turn = 1
-            if not placeable():
-                game_end()
-            else:
-                print("패스")
-    else:
-        turn = 1
-        if not placeable():
-            turn = 2
-            if not placeable():
-                game_end()
-            else:
-                print("패스")
-
-
-def game_end():  # 게임 결과 산출
-    black = 0
-    white = 0
-    for i in range(8):
-        for j in range(8):
-            if block[i][j] == 1:
-                black += 1
-            elif block[i][j] == 2:
-                white += 1
-    print("검은색 :", black)
-    print("흰색 : ", white)
-    if black > white:
-        print("검은색 승!")
-    elif black == white:
-        print("무승부")
-    else:
-        print("흰색 승!")
-
-
-def game_reset():  # 게임 초기화
-    global turn
-    turn = 1
-    for i in range(8):
-        for j in range(8):
-            block[i][j] = 0
-            sub_block[i][j] = 0
     game_start()
-    print("게임 초기화됨")
+    phase = othello_algm.phase
 
 
-def display_update():
-    screen.blit(gameboard, [gap[0] / 2, gap[1] / 2])
-    for i in range(8):
-        for r in range(8):
-            if block[i][r] == 1:
-                screen.blit(black, [place_x(r), place_y(i)])
-            elif block[i][r] == 2:
-                screen.blit(white, [place_x(r), place_y(i)])
-    for object in objects:
-        object.process()
-    pygame.display.update()
+def exit():
+    global running
+    running = 0
 
+#버튼 설정
+objects = []
 
-def button_click():
-    print("Button Pressed")
+button_width = int(0.28*display_min)
+button_height = int(0.08*display_min)
 
+button_x = display_width/2 - button_width/2
 
+start_button = Button(button_x, int(0.7*display_height), button_width, button_height, 'Game Start', game_start)
+exit_button = Button(button_x, int(0.8*display_height), button_width, button_height, 'Exit', exit)
 
-# 게임 시작 부분
-# Button(30, 30, 400, 100, 'Button One (onePress)', button_click)
-# Button(30, 140, 400, 100, 'Button Two (multiPress)', button_click, True)
-Button(30, 30, 400, 100, 'Reset', game_reset)
+phase = 0
 
-game_start()
-clock = pygame.time.Clock()
-
+# event handler
 running = True
 while running:
 
     for event in pygame.event.get():
-        mouse_x = pygame.mouse.get_pos()[0]
-        mouse_y = pygame.mouse.get_pos()[1]
-        select_x = int((mouse_x - (gap[0] / 2)) / side_length)
-        select_y = int((mouse_y - (gap[1] / 2)) / side_length)
-
         if event.type == pygame.QUIT:
             running = False
 
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:
-                game_reset()
-        # 마우스 클릭 이벤트
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 1:
-                if mouse_in_board(select_x, select_y):
-                    if empty_block(select_x, select_y):
-                        if all_direction_test(select_x, select_y):
-                            place_stones(select_x, select_y)
-                            turn_change()
+    if phase == 0:
+        for object in objects:
+            object.process()
+        pygame.display.update()
+        print(phase)
+
+    elif phase == 1:
+        for event in pygame.event.get():
+            mouse_x = pygame.mouse.get_pos()[0]
+            mouse_y = pygame.mouse.get_pos()[1]
+            select_x = int((mouse_x - (gap[0] / 2)) / side_length)
+            select_y = int((mouse_y - (gap[1] / 2)) / side_length)
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    game_reset()
+            # 마우스 클릭 이벤트
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    if mouse_in_board(select_x, select_y):
+                        if empty_block(select_x, select_y):
+                            if all_direction_test(select_x, select_y):
+                                place_stones(select_x, select_y)
+                                turn_change()
+                            else:
+                                print("그곳엔 둘 수 없습니다.")
                         else:
                             print("그곳엔 둘 수 없습니다.")
                     else:
                         print("그곳엔 둘 수 없습니다.")
-                else:
-                    print("그곳엔 둘 수 없습니다.")
-    clock.tick(60)
-    display_update()
+        display_update()
 
 pygame.quit()
