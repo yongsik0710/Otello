@@ -42,55 +42,6 @@ turn_num = 0
 history = []
 
 
-'''
-font = pygame.font.SysFont('Arial', 40)
-objects = []
-
-
-class Button():
-    def __init__(self, x, y, width, height, buttonText='Button', onclickFunction=None, onePress=False):
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
-        self.onclickFunction = onclickFunction
-        self.onePress = onePress
-        self.alreadyPressed = False
-
-        self.fillColors = {
-            'normal': '#ffffff',
-            'hover': '#666666',
-            'pressed': '#333333',
-        }
-        self.buttonSurface = pygame.Surface((self.width, self.height))
-        self.buttonRect = pygame.Rect(self.x, self.y, self.width, self.height)
-
-        self.buttonSurf = font.render(buttonText, True, (20, 20, 20))
-
-        objects.append(self)
-
-    def process(self):
-        mousePos = pygame.mouse.get_pos()
-        self.buttonSurface.fill(self.fillColors['normal'])
-        if self.buttonRect.collidepoint(mousePos):
-            self.buttonSurface.fill(self.fillColors['hover'])
-            if pygame.mouse.get_pressed(num_buttons=3)[0]:
-                self.buttonSurface.fill(self.fillColors['pressed'])
-                if self.onePress:
-                    self.onclickFunction()
-                elif not self.alreadyPressed:
-                    self.onclickFunction()
-                    self.alreadyPressed = True
-            else:
-                self.alreadyPressed = False
-
-        self.buttonSurface.blit(self.buttonSurf, [
-            self.buttonRect.width / 2 - self.buttonSurf.get_rect().width / 2,
-            self.buttonRect.height / 2 - self.buttonSurf.get_rect().height / 2
-        ])
-        screen.blit(self.buttonSurface, self.buttonRect)
-'''
-
 # 함수
 def game_start():
     global phase
@@ -296,7 +247,12 @@ def game_end():  # 게임 결과 산출
 
 def game_reset():  # 게임 초기화
     global turn
+    global turn_num
+
     turn = 1
+    turn_num = 0
+    history = []
+
     for i in range(8):
         for j in range(8):
             block[i][j] = 0
@@ -313,14 +269,4 @@ def display_update(screen):
                 screen.blit(black, [place_x(r), place_y(i)])
             elif block[i][r] == 2:
                 screen.blit(white, [place_x(r), place_y(i)])
-    '''
-    for object in objects:
-        object.process()
-    '''
     pygame.display.update()
-
-
-# 게임 시작 부분
-# Button(30, 30, 400, 100, 'Button One (onePress)', button_click)
-# Button(30, 140, 400, 100, 'Button Two (multiPress)', button_click, True)
-#Button(30, 30, 400, 100, 'Reset', game_reset)

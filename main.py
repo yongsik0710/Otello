@@ -51,8 +51,8 @@ class Button():
 
         objects.append(self)
 
-    def __del__(self):
-        print("삭제됨")
+    #def __del__(self):
+        #print("삭제")
 
     def process(self):
         mousePos = pygame.mouse.get_pos()
@@ -126,8 +126,8 @@ button_height = int(0.08*display_min)
 
 button_x = display_width/2 - button_width/2
 
-start_button = Button(button_x, int(0.7*display_height), button_width, button_height, 'Game Start', game_start)
-exit_button = Button(button_x, int(0.8*display_height), button_width, button_height, 'Exit', exit)
+start_button = Button(button_x, int(0.6*display_height), button_width, button_height, 'Game Start', game_start)
+exit_button = Button(button_x, int(0.7*display_height), button_width, button_height, 'Exit', exit)
 
 phase = 0
 
@@ -154,7 +154,7 @@ while running:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:  # 메뉴 오픈
                     phase = 2
-                    print(phase)
+                    menu()
             # 마우스 클릭 이벤트
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
@@ -170,14 +170,14 @@ while running:
                     else:
                         print("그곳엔 둘 수 없습니다.")
             othello.display_update(screen)
+
         elif phase == 2:
+            screen.fill((0, 0, 0))
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:  # 메뉴 닫기
                     resume()
-            menu()
             for object in objects:
                 object.process()
             pygame.display.update()
-
 
 pygame.quit()
