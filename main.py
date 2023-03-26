@@ -26,6 +26,12 @@ side_length = display_min / 8
 screen = pygame.display.set_mode([display_width, display_height])
 pygame.display.set_caption('오델로')
 
+# 이미지 불러오기
+current_path = os.path.dirname(__file__)
+image_path = os.path.join(current_path, "images")
+
+title = pygame.image.load(os.path.join(image_path, "title.png"))
+title = pygame.transform.scale(title, (int(0.4*display_min), int(0.4*display_min)))
 
 font = pygame.font.SysFont('None', int(0.06*display_min))
 
@@ -140,6 +146,8 @@ while running:
             running = False
 
         if phase == 0:
+            screen.fill((50, 50, 60))
+            screen.blit(title, [display_width/2 - int(0.4*display_min)/2, int(0.1*display_height)])
             for object in objects:
                 object.process()
             pygame.display.update()
@@ -172,7 +180,7 @@ while running:
             othello.display_update(screen)
 
         elif phase == 2:
-            screen.fill((0, 0, 0))
+            screen.fill((50, 50, 60))
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:  # 메뉴 닫기
                     resume()
