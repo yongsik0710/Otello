@@ -109,6 +109,35 @@ class Button():
         ])
         screen.blit(self.buttonSurface, self.buttonRect)
 
+
+class TextBox():
+    def __init__(self, x, y, width, height, Text='Box'):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+
+        self.fillColors = {'normal': '#ffffff'}
+
+        self.buttonSurface = pygame.Surface((self.width, self.height))
+        self.buttonRect = pygame.Rect(self.x, self.y, self.width, self.height)
+
+        self.buttonSurf = font.render(Text, True, (20, 20, 20))
+
+        objects.append(self)
+
+    #def __del__(self):
+        #print("삭제")
+
+    def process(self):
+        mousePos = pygame.mouse.get_pos()
+        self.buttonSurface.fill(self.fillColors['normal'])
+        self.buttonSurface.blit(self.buttonSurf, [
+            self.buttonRect.width / 2 - self.buttonSurf.get_rect().width / 2,
+            self.buttonRect.height / 2 - self.buttonSurf.get_rect().height / 2
+        ])
+        screen.blit(self.buttonSurface, self.buttonRect)
+
 #함수 선언
 def game_start():
     global phase
@@ -130,7 +159,7 @@ def menu():
         resume_button = Button(button_x, int(0.2 * display_height), button_width, button_height, 'Resume', resume)
         undo_button = Button(button_x, int(0.3*display_height), button_width, button_height, 'Undo', undo)
         reset_button = Button(button_x, int(0.4 * display_height), button_width, button_height, 'Reset', reset)
-        # options_button = Button(button_x, int(0.5 * display_height), button_width, button_height, 'Options', options)
+        options_button = Button(button_x, int(0.5 * display_height), button_width, button_height, 'Options', options)
         exit_button = Button(button_x, int(0.6 * display_height), button_width, button_height, 'Exit', exit)
 
 
@@ -152,13 +181,38 @@ def undo():
     othello.undo()
 
 
+def options():
+    global objects
+    global phase
+
+    phase = 3
+    objects = []
+
+    if objects == []:
+        preview_text = TextBox(button_x-int(0.5*button_width), int(0.2 * display_height), button_width, button_height, 'Preview')
+        time_limit_text = TextBox(button_x-int(0.5*button_width), int(0.3*display_height), button_width, button_height, 'Time Limit')
+        resolution_text = TextBox(button_x-int(0.5*button_width), int(0.4 * display_height), button_width, button_height, 'Resolution')
+        colon_text = TextBox(int(display_width / 2) + int(0.2 * button_width) / 2, int(0.2 * display_height),int(0.2 * button_width), button_height, ':')
+        colon_text = TextBox(int(display_width / 2) + int(0.2 * button_width) / 2, int(0.3 * display_height),int(0.2 * button_width), button_height, ':')
+        colon_text = TextBox(int(display_width / 2) + int(0.2 * button_width) / 2, int(0.4 * display_height),int(0.2 * button_width), button_height, ':')
+        back_button = Button(button_x, int(0.6 * display_height), button_width, button_height, 'Back to Menu', back_to_menu)
+
+
+def back_to_menu():
+    global phase
+    global objects
+
+    phase = 2
+    objects = []
+    menu()
+
 #버튼 설정
 objects = []
 
 button_width = int(0.28*display_min)
 button_height = int(0.08*display_min)
 
-button_x = display_width/2 - button_width/2
+button_x = int(display_width/2 - button_width/2)
 
 start_button = Button(button_x, int(0.6*display_height), button_width, button_height, 'Game Start', game_start)
 exit_button = Button(button_x, int(0.7*display_height), button_width, button_height, 'Exit', exit)
@@ -212,6 +266,15 @@ while running:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:  # 메뉴 닫기
                     resume()
+            for object in objects:
+                object.process()
+            pygame.display.update()
+
+        elif phase == 3:
+            screen.fill((50, 50, 50))
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:  # 옵션 닫기
+                    back_to_menu()
             for object in objects:
                 object.process()
             pygame.display.update()
