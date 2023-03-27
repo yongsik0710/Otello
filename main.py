@@ -4,9 +4,27 @@ import configparser
 import othello_algorithm as othello
 
 pygame.init()
+
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path + "/images", relative_path)
+
+def config_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
+
 # 설정 불러오기
 config = configparser.ConfigParser()
-config.read('config.ini')
+config.read(config_path('config.ini'))
 
 #화면 설정
 display_width = config.getint('display', 'width')
@@ -23,17 +41,27 @@ else:
 
 side_length = display_min / 8
 
+othello.variable_init(display_width, display_height, gap, side_length)
+
 screen = pygame.display.set_mode([display_width, display_height])
 pygame.display.set_caption('오델로')
 
-# 이미지 불러오기
-current_path = os.path.dirname(__file__)
-image_path = os.path.join(current_path, "images")
 
-title = pygame.image.load(os.path.join(image_path, "title.png"))
+# 이미지 로드
+gameboard = pygame.image.load(resource_path("gameboard.png"))
+gameboard = pygame.transform.scale(gameboard, (display_min, display_min))
+
+black = pygame.image.load(resource_path("blackstone.png"))
+black = pygame.transform.scale(black, (side_length, side_length))
+
+white = pygame.image.load(resource_path("whitestone.png"))
+white = pygame.transform.scale(white, (side_length, side_length))
+
+title = pygame.image.load(resource_path("title.png"))
 title = pygame.transform.scale(title, (int(0.4*display_min), int(0.4*display_min)))
 
 font = pygame.font.SysFont('None', int(0.06*display_min))
+
 
 class Button():
     def __init__(self, x, y, width, height, buttonText='Button', onclickFunction=None, onePress=False):
@@ -81,7 +109,7 @@ class Button():
         ])
         screen.blit(self.buttonSurface, self.buttonRect)
 
-
+#함수 선언
 def game_start():
     global phase
     global objects
@@ -177,7 +205,7 @@ while running:
                             print("그곳엔 둘 수 없습니다.")
                     else:
                         print("그곳엔 둘 수 없습니다.")
-            othello.display_update(screen)
+            othello.display_update(screen, gameboard, black, white)
 
         elif phase == 2:
             screen.fill((50, 50, 50))

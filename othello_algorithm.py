@@ -1,37 +1,23 @@
 import pygame
-import configparser
+#import configparser
 import os
 import copy
 
-config = configparser.ConfigParser()
-config.read('config.ini')
+#config = configparser.ConfigParser()
+#config.read(os.path.abspath("."), 'config.ini')
 
-display_width = config.getint('display', 'width')
-display_height = config.getint('display', 'height')
+#display_width = config.getint('display', 'width')
+#display_height = config.getint('display', 'height')
+def variable_init(d_w, d_h, g, s_l):
+    global display_width
+    global display_height
+    global gap
+    global side_length
 
-if display_height > display_width:
-    display_max = display_height
-    display_min = display_width
-    gap = [0, display_max - display_min]
-else:
-    display_max = display_width
-    display_min = display_height
-    gap = [display_max - display_min, 0]
-
-side_length = display_min / 8
-
-# 이미지 로드
-current_path = os.path.dirname(__file__)
-image_path = os.path.join(current_path, "images")
-
-gameboard = pygame.image.load(os.path.join(image_path, "gameboard.png"))
-gameboard = pygame.transform.scale(gameboard, (display_min, display_min))
-
-black = pygame.image.load(os.path.join(image_path, "blackstone.png"))
-black = pygame.transform.scale(black, (side_length, side_length))
-
-white = pygame.image.load(os.path.join(image_path, "whitestone.png"))
-white = pygame.transform.scale(white, (side_length, side_length))
+    display_width = d_w
+    display_height = d_h
+    gap = g
+    side_length =s_l
 
 
 block = [[0 for i in range(8)] for j in range(8)]
@@ -258,7 +244,7 @@ def game_reset():  # 게임 초기화
     print("게임 초기화됨")
 
 
-def display_update(screen):
+def display_update(screen, gameboard, black, white):
     screen.blit(gameboard, [gap[0] / 2, gap[1] / 2])
     for i in range(8):
         for r in range(8):
