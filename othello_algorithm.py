@@ -44,14 +44,11 @@ history = []
 
 # 함수
 def game_start():
-    global phase
 
     block[3][3] = 2
     block[4][4] = 2
     block[3][4] = 1
     block[4][3] = 1
-
-    phase = 1
 
     history.append(copy.deepcopy(block))
 

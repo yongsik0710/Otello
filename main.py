@@ -87,7 +87,7 @@ def game_start():
     global objects
 
     othello.game_start()
-    phase = othello.phase
+    phase = 1
 
     objects = []
 
@@ -146,7 +146,7 @@ while running:
             running = False
 
         if phase == 0:
-            screen.fill((50, 50, 60))
+            screen.fill((50, 50, 50))
             screen.blit(title, [display_width/2 - int(0.4*display_min)/2, int(0.1*display_height)])
             for object in objects:
                 object.process()
@@ -180,7 +180,7 @@ while running:
             othello.display_update(screen)
 
         elif phase == 2:
-            screen.fill((50, 50, 60))
+            screen.fill((50, 50, 50))
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:  # 메뉴 닫기
                     resume()
