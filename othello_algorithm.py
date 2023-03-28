@@ -1,27 +1,22 @@
 import pygame
-#import configparser
 import os
 import copy
 
-#config = configparser.ConfigParser()
-#config.read(os.path.abspath("."), 'config.ini')
-
-#display_width = config.getint('display', 'width')
-#display_height = config.getint('display', 'height')
-def variable_init(d_w, d_h, g, s_l):
+def variable_init(d_w, d_h, s_l, g_p):
     global display_width
     global display_height
-    global gap
     global side_length
+    global gameboard_pos
 
     display_width = d_w
     display_height = d_h
-    gap = g
     side_length =s_l
+    gameboard_pos = g_p
 
 
 block = [[0 for i in range(8)] for j in range(8)]
 sub_block = [[0 for i in range(8)] for j in range(8)]
+pre_block = [[0 for i in range(8)] for j in range(8)]
 direction = [[1, 1], [1, 0], [1, -1], [0, -1], [-1, -1], [-1, 0], [-1, 1], [0, 1]]
 turn = 1
 turn_num = 0
@@ -40,11 +35,11 @@ def game_start():
 
 
 def place_x(select_x):
-    return int((select_x * side_length) + (gap[0] / 2))
+    return int((select_x * side_length) + gameboard_pos[0])
 
 
 def place_y(select_y):
-    return int((select_y * side_length) + (gap[1] / 2))
+    return int((select_y * side_length) + gameboard_pos[1])
 
 
 def get_mouse(m_x, m_y):
@@ -56,8 +51,8 @@ def get_mouse(m_x, m_y):
 
 
 def mouse_in_board(select_x, select_y):  # 클릭 위치가 게임보드 안인가?
-    if mouse_x - (gap[0] / 2) >= 0 and select_x < 8:
-        if mouse_y - (gap[1] / 2) >= 0 and select_y < 8:
+    if mouse_x - gameboard_pos[0] >= 0 and 0 <= select_x <= 7:
+        if mouse_y - gameboard_pos[1] >= 0 and 0 <= select_y <= 7:
             return True
         else:
             return False
@@ -140,6 +135,14 @@ def all_direction_test(select_x, select_y):  # 8방향 검사
     return False
 
 
+def placeable_here(select_x, select_y):
+    if mouse_in_board(select_x, select_y):
+        if empty_block(select_x, select_y):
+            if all_direction_test(select_x, select_y):
+                return True
+    return False
+
+
 def place_stones(select_x, select_y):  # 돌 설치
     for n in range(8):
         dx = direction[n][1]
@@ -159,7 +162,7 @@ def place_stones(select_x, select_y):  # 돌 설치
             sub_block[i][j] = 0
 
 
-def placeable():  # 이 차례에 둘 수 있는 곳이 있는가?
+def placeable_turn():  # 이 차례에 둘 수 있는 곳이 있는가?
     for i in range(8):
         for j in range(8):
             if empty_block(i, j):
@@ -174,17 +177,17 @@ def turn_change():
 
     if turn == 1:
         turn = 2
-        if not placeable():
+        if not placeable_turn():
             turn = 1
-            if not placeable():
+            if not placeable_turn():
                 game_end()
             else:
                 print("패스")
     else:
         turn = 1
-        if not placeable():
+        if not placeable_turn():
             turn = 2
-            if not placeable():
+            if not placeable_turn():
                 game_end()
             else:
                 print("패스")
@@ -207,6 +210,30 @@ def undo():
             turn = 1
     else:
         print("더 이상 되돌릴 수 없습니다.")
+
+
+def preview(select_x, select_y):
+    if placeable_here(select_x, select_y):
+        for n in range(8):
+            dx = direction[n][1]
+            dy = direction[n][0]
+            if one_direction_test(select_x, select_y, dx, dy, n + 1):
+                for i in range(8):
+                    for j in range(8):
+                        if sub_block[i][j] == n + 1 or sub_block[i][j] == -1:
+                            sub_block[i][j] = -1
+                        else:
+                            sub_block[i][j] = 0
+        sub_block[select_y][select_x] = -1
+        for i in range(8):
+            for j in range(8):
+                if sub_block[i][j] == -1:
+                    pre_block[i][j] = turn
+                sub_block[i][j] = 0
+    else:
+        if mouse_in_board(select_x, select_y):
+            if empty_block(select_x, select_y):
+                pre_block[select_y][select_x] = 3
 
 
 def game_end():  # 게임 결과 산출
@@ -244,12 +271,25 @@ def game_reset():  # 게임 초기화
     print("게임 초기화됨")
 
 
-def display_update(screen, gameboard, black, white):
-    screen.blit(gameboard, [gap[0] / 2, gap[1] / 2])
+def display_update(screen, gameboard, black, white, pre_black, pre_white, pre_unplaceable):
+    screen.blit(gameboard, [gameboard_pos[0], gameboard_pos[1]])
+
     for i in range(8):
         for r in range(8):
-            if block[i][r] == 1:
-                screen.blit(black, [place_x(r), place_y(i)])
-            elif block[i][r] == 2:
-                screen.blit(white, [place_x(r), place_y(i)])
+            if pre_block[i][r] != 1 and pre_block[i][r] != 2:
+                if block[i][r] == 1:
+                    screen.blit(black, [place_x(r), place_y(i)])
+                elif block[i][r] == 2:
+                    screen.blit(white, [place_x(r), place_y(i)])
+
+            if pre_block[i][r] == 1:
+                screen.blit(pre_black, [place_x(r), place_y(i)])
+            elif pre_block[i][r] == 2:
+                screen.blit(pre_white, [place_x(r), place_y(i)])
+            elif pre_block[i][r] == 3:
+                screen.blit(pre_unplaceable, [place_x(r), place_y(i)])
+
+            if pre_block[i][r] != 0:
+                pre_block[i][r] = 0
+
     pygame.display.update()

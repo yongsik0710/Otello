@@ -9,5 +9,10 @@
     ㄴ스킨 설정(1,2...)
     ㄴ뒤로
 (완)-게임 종료
+(진)-패널
+    ㄴ차례 표시
+    ㄴ갯수
+    ㄴ
 
+pyinstaller -w -F --add-data "images;images" --add-data "config.ini;." main.py
 
