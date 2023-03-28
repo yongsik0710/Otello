@@ -16,3 +16,10 @@
 
 pyinstaller -w -F --add-data "images;images" --add-data "config.ini;." main.py
 
+객체 지향으로 짜보기
+플레이어
+게임보드
+검은색 돌
+흰색 돌
+오델로 알고리즘
+
