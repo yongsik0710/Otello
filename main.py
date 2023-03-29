@@ -2,6 +2,8 @@ import pygame
 import os
 import configparser
 import othello_algorithm as othello
+import weakref
+import time
 
 pygame.init()
 
@@ -57,7 +59,7 @@ font = pygame.font.SysFont('None', int(0.06 * display_height))
 
 
 class Button():
-    def __init__(self, x, y, width, height, buttonText='Button', onclickFunction=None, onePress=False):
+    def __init__(self, x, y, width, height, buttonText='Button', onclickFunction=None, onePress=True):
         self.x = x - int(width / 2)
         self.y = y - int(height / 2)
         self.width = width
@@ -135,10 +137,15 @@ def game_start():
     global phase
     global objects
 
-    othello.game_start()
-    phase = 1
-
     objects = []
+
+    othello.game_start()
+    panel_black = weakref.ref(TextBox(panel_pos[0], panel_pos[1] - int(0.25 * gameboard_side_length), int(0.5 * gameboard_side_length), int(0.45 * gameboard_side_length), None))
+    panel_white = weakref.ref(TextBox(panel_pos[0], panel_pos[1] + int(0.25 * gameboard_side_length), int(0.5 * gameboard_side_length), int(0.45 * gameboard_side_length), None))
+    screen.fill((50, 50, 50))
+
+    phase = 1
+    time.sleep(0.1)
 
 
 def exit():
@@ -147,12 +154,19 @@ def exit():
 
 
 def menu():
-    if objects == []:
-        resume_button = Button(x_center, y_center - int(0.2 * display_height), button_width, button_height, 'Resume', resume)
-        undo_button = Button(x_center, y_center - int(0.1 * display_height), button_width, button_height, 'Undo', undo)
-        reset_button = Button(x_center, y_center, button_width, button_height, 'Reset', reset)
-        options_button = Button(x_center, y_center + int(0.1 * display_height), button_width, button_height, 'Options', options)
-        exit_button = Button(x_center, y_center + int(0.2 * display_height), button_width, button_height, 'Exit', exit)
+    global objects
+    global phase
+
+    objects = []
+
+    resume_button = weakref.ref(Button(x_center, y_center - int(0.2 * display_height), button_width, button_height, 'Resume', resume))
+    undo_button = weakref.ref(Button(x_center, y_center - int(0.1 * display_height), button_width, button_height, 'Undo', undo))
+    reset_button = weakref.ref(Button(x_center, y_center, button_width, button_height, 'Reset', reset))
+    options_button = weakref.ref(Button(x_center, y_center + int(0.1 * display_height), button_width, button_height, 'Options', options))
+    exit_button = weakref.ref(Button(x_center, y_center + int(0.2 * display_height), button_width, button_height, 'Exit', exit))
+
+    phase = 2
+    time.sleep(0.1)
 
 
 def resume():
@@ -160,7 +174,12 @@ def resume():
     global phase
 
     objects = []
+
+    panel_black = weakref.ref(TextBox(panel_pos[0], panel_pos[1] - int(0.25 * gameboard_side_length), int(0.5 * gameboard_side_length), int(0.45 * gameboard_side_length), None))
+    panel_white = weakref.ref(TextBox(panel_pos[0], panel_pos[1] + int(0.25 * gameboard_side_length), int(0.5 * gameboard_side_length), int(0.45 * gameboard_side_length), None))
+    screen.fill((50, 50, 50))
     phase = 1
+    time.sleep(0.1)
 
 
 def reset():
@@ -179,28 +198,34 @@ def options():
     global preview_value_text
     global time_limit_value_text
 
-    phase = 3
     objects = []
 
     preview_text_pos = y_center - int(0.2 * display_height)
-    preview_text = TextBox(x_center - int(0.18 * display_height), preview_text_pos, button_width, button_height, 'Preview')
-    colon_text = TextBox(x_center, preview_text_pos, int(0.6 * button_height), button_height, ':')
-    preview_up_button = Button(x_center + int(0.12 * display_height), preview_text_pos, int(0.8 * button_height), int(0.8 * button_height), '<', change_preview)
-    preview_value_text = TextBox(x_center + int(0.25 * display_height), preview_text_pos, int(0.6 * button_width), button_height, config.get('interface', 'preview'))
-    preview_down_button = Button(x_center + int(0.38 * display_height), preview_text_pos, int(0.8 * button_height), int(0.8 * button_height), '>', change_preview)
+
+    preview_text = weakref.ref(TextBox(x_center - int(0.18 * display_height), preview_text_pos, button_width, button_height, 'Preview'))
+    colon_text = weakref.ref((TextBox(x_center, preview_text_pos, int(0.6 * button_height), button_height, ':')))
+    preview_up_button = weakref.ref(Button(x_center + int(0.12 * display_height), preview_text_pos, int(0.8 * button_height), int(0.8 * button_height), '<', change_preview))
+    preview_value_text = weakref.ref(TextBox(x_center + int(0.25 * display_height), preview_text_pos, int(0.6 * button_width), button_height, config.get('interface', 'preview')))
+    preview_down_button = weakref.ref(Button(x_center + int(0.38 * display_height), preview_text_pos, int(0.8 * button_height), int(0.8 * button_height), '>', change_preview))
 
     time_limit_text_pos = y_center - int(0.1 * display_height)
-    time_limit_text = TextBox(x_center - int(0.18 * display_height), time_limit_text_pos, button_width, button_height, 'Time Limit')
-    time_limit_up_button = Button(x_center + int(0.09 * display_height), time_limit_text_pos, int(0.8 * button_height), int(0.8 * button_height), '<', down_time_limit)
-    time_limit_value_text = TextBox(x_center + int(0.25 * display_height), time_limit_text_pos, int(0.8 * button_width), button_height, config.get('gameplay', 'time limit'))
-    time_limit_down_button = Button(x_center + int(0.41 * display_height), time_limit_text_pos, int(0.8 * button_height), int(0.8 * button_height), '>', up_time_limit)
-    colon_text = TextBox(x_center, time_limit_text_pos, int(0.6 * button_height), button_height, ':')
+
+    time_limit_text = weakref.ref(TextBox(x_center - int(0.18 * display_height), time_limit_text_pos, button_width, button_height, 'Time Limit'))
+    time_limit_up_button = weakref.ref(Button(x_center + int(0.09 * display_height), time_limit_text_pos, int(0.8 * button_height), int(0.8 * button_height), '<', down_time_limit))
+    time_limit_value_text = weakref.ref(TextBox(x_center + int(0.25 * display_height), time_limit_text_pos, int(0.8 * button_width), button_height, config.get('gameplay', 'time limit')))
+    time_limit_down_button = weakref.ref(Button(x_center + int(0.41 * display_height), time_limit_text_pos, int(0.8 * button_height), int(0.8 * button_height), '>', up_time_limit))
+    colon_text = weakref.ref(TextBox(x_center, time_limit_text_pos, int(0.6 * button_height), button_height, ':'))
 
     resolution_text_pos = y_center
-    resolution_text = TextBox(x_center - int(0.18 * display_height), resolution_text_pos, button_width, button_height, 'Resolution')
-    colon_text = TextBox(x_center, resolution_text_pos, int(0.6 * button_height), button_height, ':')
 
-    back_button = Button(x_center, y_center + int(0.2 * display_height), button_width, button_height, 'Back to Menu', back_to_menu)
+    resolution_text = weakref.ref(TextBox(x_center - int(0.18 * display_height), resolution_text_pos, button_width, button_height, 'Resolution'))
+    colon_text = weakref.ref(TextBox(x_center, resolution_text_pos, int(0.6 * button_height), button_height, ':'))
+
+    back_button = weakref.ref(Button(x_center, y_center + int(0.2 * display_height), button_width, button_height, 'Back to Menu', menu))
+
+    phase = 3
+    time.sleep(0.1)
+
 
 def change_preview():
     global preview_value_text
@@ -269,15 +294,6 @@ def down_time_limit():
         config.write(configfile)
 
 
-def back_to_menu():
-    global phase
-    global objects
-
-    phase = 2
-    objects = []
-    menu()
-
-
 # 시작 화면
 objects = []
 
@@ -289,11 +305,10 @@ y_center = int(display_height/2)
 
 panel_pos = [int(0.8 * display_width), y_center]
 
-panel = TextBox(panel_pos[0], panel_pos[1], int(0.5 * gameboard_side_length), gameboard_side_length)
+start_button = weakref.ref(Button(x_center, y_center + int(0.15 * display_height), button_width, button_height, 'Game Start', game_start))
+exit_button = weakref.ref(Button(x_center, y_center + int(0.25 * display_height), button_width, button_height, 'Exit', exit))
 
-start_button = Button(x_center, y_center + int(0.15 * display_height), button_width, button_height, 'Game Start', game_start)
-exit_button = Button(x_center, y_center + int(0.25 * display_height), button_width, button_height, 'Exit', exit)
-
+screen.fill((50, 50, 50))
 phase = 0
 
 # event handler
@@ -304,16 +319,16 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
+        mouse_x = pygame.mouse.get_pos()[0]
+        mouse_y = pygame.mouse.get_pos()[1]
+
         if phase == 0:
-            screen.fill((50, 50, 50))
-            screen.blit(title, [x_center - int(0.4 * display_height) / 2, y_center - int(0.4 * display_height)])
             for object in objects:
                 object.process()
+            screen.blit(title, [x_center - int(0.4 * display_height) / 2, y_center - int(0.4 * display_height)])
             pygame.display.update()
 
         elif phase == 1:
-            mouse_x = pygame.mouse.get_pos()[0]
-            mouse_y = pygame.mouse.get_pos()[1]
             select_x = int((mouse_x - gameboard_pos[0]) / side_length)
             select_y = int((mouse_y - gameboard_pos[1]) / side_length)
             othello.get_mouse(mouse_x, mouse_y)
@@ -323,7 +338,6 @@ while running:
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:  # 메뉴 오픈
-                    phase = 2
                     menu()
             # 마우스 클릭 이벤트
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -334,22 +348,28 @@ while running:
                     else:
                         print("그곳에는 둘 수 없습니다.")
 
+            for object in objects:
+                object.process()
             othello.display_update(screen, gameboard, black, white, pre_black, pre_white, pre_unplaceable)
 
         elif phase == 2:
-            screen.fill((50, 50, 50))
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:  # 메뉴 닫기
                     resume()
+                    panel_black = weakref.ref(TextBox(panel_pos[0], panel_pos[1] - int(0.25 * gameboard_side_length), int(0.5 * gameboard_side_length), int(0.45 * gameboard_side_length), None))
+                    panel_white = weakref.ref(TextBox(panel_pos[0], panel_pos[1] + int(0.25 * gameboard_side_length), int(0.5 * gameboard_side_length), int(0.45 * gameboard_side_length), None))
+
+            screen.fill((50, 50, 50))
             for object in objects:
                 object.process()
             pygame.display.update()
 
         elif phase == 3:
-            screen.fill((50, 50, 50))
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:  # 옵션 닫기
-                    back_to_menu()
+                    menu()
+
+            screen.fill((50, 50, 50))
             for object in objects:
                 object.process()
             pygame.display.update()
