@@ -1,16 +1,18 @@
 import pygame
 import copy
 
-def variable_init(d_w, d_h, s_l, g_p):
+def variable_init(d_w, d_h, s_l, g_p, g_s_l):
     global display_width
     global display_height
     global side_length
     global gameboard_pos
+    global gameboard_side_length
 
     display_width = d_w
     display_height = d_h
     side_length =s_l
     gameboard_pos = g_p
+    gameboard_side_length = g_s_l
 
 
 block = [[0 for i in range(8)] for j in range(8)]
@@ -34,11 +36,11 @@ def game_start():
 
 
 def place_x(select_x):
-    return int((select_x * side_length) + gameboard_pos[0])
+    return int((select_x * gameboard_side_length / 8) + gameboard_pos[0])
 
 
 def place_y(select_y):
-    return int((select_y * side_length) + gameboard_pos[1])
+    return int((select_y * gameboard_side_length / 8) + gameboard_pos[1])
 
 
 def get_mouse(m_x, m_y):

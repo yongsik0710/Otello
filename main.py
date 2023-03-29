@@ -28,7 +28,7 @@ gameboard_side_length = int(0.9 * display_height)
 side_length = int(gameboard_side_length / 8)
 gameboard_pos = [int(0.15 * display_width), int(0.05 * display_height)]
 
-othello.variable_init(display_width, display_height, side_length, gameboard_pos)
+othello.variable_init(display_width, display_height, side_length, gameboard_pos, gameboard_side_length)
 
 screen = pygame.display.set_mode([display_width, display_height])
 pygame.display.set_caption('오델로')
