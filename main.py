@@ -2,7 +2,6 @@ import pygame
 import os
 import configparser
 import othello_algorithm as othello
-import sys
 
 pygame.init()
 
@@ -214,7 +213,7 @@ def change_preview():
     Text = config['interface']['preview']
     preview_value_text.buttonSurf = font.render(Text, True, (20, 20, 20))
 
-    with open('config.ini', 'w') as configfile:
+    with open(resource_path('config.ini'), 'w') as configfile:
         config.write(configfile)
 
 
@@ -240,7 +239,7 @@ def up_time_limit():
     Text = config['gameplay']['time limit']
     time_limit_value_text.buttonSurf = font.render(Text, True, (20, 20, 20))
 
-    with open('config.ini', 'w') as configfile:
+    with open(resource_path('config.ini'), 'w') as configfile:
         config.write(configfile)
 
 
@@ -266,7 +265,7 @@ def down_time_limit():
     Text = config['gameplay']['time limit']
     time_limit_value_text.buttonSurf = font.render(Text, True, (20, 20, 20))
 
-    with open('config.ini', 'w') as configfile:
+    with open(resource_path('config.ini'), 'w') as configfile:
         config.write(configfile)
 
 

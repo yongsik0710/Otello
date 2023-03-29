@@ -12,7 +12,7 @@
 (진)-패널
     ㄴ차례 표시
     ㄴ갯수
-    ㄴ
+    ㄴ시간
 
 pyinstaller -w -F --add-data "images;images" --add-data "config.ini;." main.py
 
