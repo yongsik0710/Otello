@@ -1,5 +1,4 @@
 import pygame
-import os
 import copy
 
 def variable_init(d_w, d_h, s_l, g_p):
@@ -21,6 +20,98 @@ direction = [[1, 1], [1, 0], [1, -1], [0, -1], [-1, -1], [-1, 0], [-1, 1], [0, 1
 turn = 1
 turn_num = 0
 history = []
+
+
+class OtelloAlgorithm():
+    def __init__(self, click_pos):
+        self.mouse_x = click_pos[0]
+        self.mouse_y = click_pos[1]
+        self.select_x = int((mouse_x - gameboard_pos[0]) / side_length)
+        self.select_y = int((mouse_y - gameboard_pos[1]) / side_length)
+
+    def mouse_in_board(self):  # 클릭 위치가 게임보드 안인가?
+        if self.mouse_x - gameboard_pos[0] >= 0 and 0 <= self.select_x <= 7:
+            if self.mouse_y - gameboard_pos[1] >= 0 and 0 <= self.select_y <= 7:
+                return True
+            else:
+                return False
+        else:
+            return False
+
+    def select_in_board(self):  # 선택 위치가 게임보드 안인가?
+        if 0 <= self.select_x <= 7:
+            if 0 <= self.select_y <= 7:
+                return True
+            else:
+                return False
+        else:
+            return False
+
+    def empty_block(select_x, select_y):  # 선택한 곳이 비워져 있는가?
+        if block[select_y][select_x] == 0:
+            return True
+        else:
+            return False
+
+    def same_block(select_x, select_y):  # 선택한 곳이 같은 블럭인가? (검은색의 차례인 경우 검은색인 경우 참)
+        if block[select_y][select_x] == turn:
+            return True
+        else:
+            return False
+
+    def different_block(select_x, select_y):  # 선택한 곳이 다른 블럭인가? (검은색의 차례인 경우 흰색인 경우만 참)
+        if block[select_y][select_x] != turn:
+            if not empty_block(select_x, select_y):
+                return True
+            else:
+                return False
+        else:
+            return False
+
+    def first_direction_test(select_x, select_y):  # 바로 다음 칸이 다른 색인가?
+        if select_in_board(select_x, select_y):
+            if different_block(select_x, select_y):
+                return True
+            else:
+                return False
+        else:
+            return False
+
+    def one_direction_test(select_x, select_y, dx, dy, n):  # 한 방향 검사
+        select_x += dx
+        select_y += dy
+        if first_direction_test(select_x, select_y):
+            sub_block[select_y][select_x] = n
+            while True:
+                select_x += dx
+                select_y += dy
+                if select_in_board(select_x, select_y):
+                    if not empty_block(select_x, select_y):
+                        if same_block(select_x, select_y):
+                            return True
+                        else:
+                            sub_block[select_y][select_x] = n
+                    else:
+                        return False
+                else:
+                    return False
+        else:
+            return False
+
+    def all_direction_test(select_x, select_y):  # 8방향 검사
+        for n in range(8):
+            dx = direction[n][1]
+            dy = direction[n][0]
+            if one_direction_test(select_x, select_y, dx, dy, 0):
+                return True
+        return False
+
+    def placeable_here(select_x, select_y):
+        if mouse_in_board(select_x, select_y):
+            if empty_block(select_x, select_y):
+                if all_direction_test(select_x, select_y):
+                    return True
+        return False
 
 
 # 함수

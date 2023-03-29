@@ -2,6 +2,7 @@ import pygame
 import os
 import configparser
 import othello_algorithm as othello
+import sys
 
 pygame.init()
 
